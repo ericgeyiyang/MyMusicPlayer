@@ -20,7 +20,15 @@ import java.util.List;
 public class MyMusicAdaper extends BaseAdapter {
     private List<MusicInfo> mMusicInfoList;
     private Context mContext;
+    private static int playingPostion;
 
+    public static void setPlayingPosition(int position) {
+        playingPostion = position;
+    }
+
+    public int getPlayingPosition() {
+        return playingPostion;
+    }
 
     public MyMusicAdaper(Context context, List<MusicInfo> musicInfoList ) {
         mMusicInfoList = musicInfoList;

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.geyiyang.eric_x_music.MainActivity">
-    <LinearLayout
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:context="com.example.geyiyang.eric_x_music.Activity.MainActivity">
         <LinearLayout
+            android:id="@+id/linearlayout"
             android:layout_width="match_parent"
             android:layout_height="22dp"
             android:layout_marginTop="10dp"
@@ -19,29 +17,28 @@
             <TextView
                 android:layout_width="2dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:background="#FF0000" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text="本地歌曲"
                 android:textColor="#000000"
                 android:textSize="16sp" />
         </LinearLayout>
         <ListView
-            android:id="@+id/listview"
+            android:id="@+id/MusicList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="70dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="10dp">
 
         </ListView>
 
 
-    </LinearLayout>
+</LinearLayout>
 
-</RelativeLayout>
+

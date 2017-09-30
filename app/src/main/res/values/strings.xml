@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Eric X Music</string>
+    <string name="search_local">搜索本地歌曲</string>
+    <string name="playing">正在播放</string>
+    <string name="share">分享</string>
+    <string name="getlrc">获取封面和歌词</string>
+    <string name="default_time">00:00</string>
 </resources>
