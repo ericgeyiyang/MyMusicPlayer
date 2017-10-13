@@ -20,6 +20,6 @@
 - Only local playback is achieved, did not do network music player, notice column control, sharing music,etc
 
 ### Reference
-- [**ImitateNetEasyCloud**](https://github.com/ChanWong21/PonyMusic)
+- [**ImitateNetEasyCloud**](https://github.com/Limuyang1013/ImitateNetEasyCloud)
 
 - [**LiteMusic**](http://download.csdn.net/download/u010156024/9793829)
