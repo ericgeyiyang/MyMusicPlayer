@@ -24,6 +24,9 @@ import java.util.List;
 
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
+/**
+ * 播放界面
+ */
 public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MyMediaPlayerActivity";
     private Toolbar toolbar;
@@ -40,11 +43,13 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
     private ImageView imageView_disc;
 
     private SeekBar seekBar;
-    private int position;
     private List<MusicInfo> musicInfoList;
 
     private Myhandler handler;
 
+    /**
+     * 更新seekbar等UI
+     */
     class Myhandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -64,28 +69,39 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         return true;
     }
 
+    /**
+     * 绑定服务，为当前Activity提供服务和监听
+     */
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume: --->bindservice");
+        Log.i(TAG, "onResume: --->bindService");
         allowBindService();
     }
     @Override
     protected void onPause() {
-        Log.i(TAG, "onPause: --->unbindservice");
+        Log.i(TAG, "onPause: --->UnbindService");
         allowUnbindService();
         super.onPause();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate: --->");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_player_layout);
         initalView();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy: --->");
+    }
+
     /**
-     * 实现BaseActivity的更新进度方法
+     * 实现BaseActivity的更新进度方法，
+     * 因为onPublish在Service中是新开线程，所以要加入looper消息队列通知UI线程更新
      * @param progress 进度
      */
     @Override
@@ -95,6 +111,11 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         msg.arg1 = progress;
         handler.sendMessage(msg);
     }
+
+    /**
+     * 在主线程中触发的onChange函数（Service的play函数）,不需要Handler
+     * @param position 歌曲在list中的位置
+     */
     @Override
     public void onChange(int position) {
         Log.i(TAG, "onChange: --->");
@@ -121,6 +142,10 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
                 .into(imageView_disc);
     }
 
+    /**
+     * 更新UI
+     * @param position 当前播放歌曲
+     */
     private void onPlay(int position) {
         MusicInfo music = musicInfoList.get(position);
         textView_title.setText(music.getTitle());
@@ -150,15 +175,9 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
                 break;
             case R.id.playing_pre:
                 getPlayService().pre();
-//                if (position <= 0) position = musicInfoList.size() - 1;
-//                else position--;
-//                onChange(position);
                 break;
             case R.id.playing_next:
                 getPlayService().next();
-//                if (position >= musicInfoList.size() - 1) position=0;
-//                else position++;
-//                onChange(position);
                 break;
             case R.id.back:
                 finish();
@@ -194,14 +213,9 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         p.rightMargin = (int) (App.screenWidth * 0.03);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-            }
-
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {

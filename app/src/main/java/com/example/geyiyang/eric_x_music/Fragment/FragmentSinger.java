@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 import com.example.geyiyang.eric_x_music.Activity.MainActivity;
 import com.example.geyiyang.eric_x_music.Activity.MyMediaPlayerActivity;
-import com.example.geyiyang.eric_x_music.Adapter.MyMusicAdaper;
+import com.example.geyiyang.eric_x_music.Adapter.MyMusicAdapter;
 import com.example.geyiyang.eric_x_music.Model.MusicInfo;
 import com.example.geyiyang.eric_x_music.R;
 import com.example.geyiyang.eric_x_music.Utils.MusicUtils;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class FragmentSinger extends Fragment {
     private static final String TAG = "FragmentSinger";
-    private MyMusicAdaper myMusicAdaper;
+    private MyMusicAdapter myMusicAdapter;
     private List<MusicInfo> musicInfoList;//得到MusicUtils中的音乐列表
     private ListView listView;
     private ImageView imageView;
@@ -60,8 +60,8 @@ public class FragmentSinger extends Fragment {
         listView=(ListView)view.findViewById(R.id.MusicList);
         listView.setOnItemClickListener(musicItemClickListener);
         musicInfoList = MusicUtils.getMusicInfoList();
-        myMusicAdaper = new MyMusicAdaper(getActivity(), musicInfoList);
-        listView.setAdapter(myMusicAdaper);
+        myMusicAdapter = new MyMusicAdapter(getActivity(), musicInfoList);
+        listView.setAdapter(myMusicAdapter);
     }
     /**
      * view创建完毕 回调通知activity绑定歌曲播放服务,onServiceConnected调用onChange更新页面
@@ -75,7 +75,7 @@ public class FragmentSinger extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop: --->unbindservice");
+        Log.i(TAG, "onStop: --->");
 //        mainActivity.allowUnbindService();//音乐不会停止
     }
 

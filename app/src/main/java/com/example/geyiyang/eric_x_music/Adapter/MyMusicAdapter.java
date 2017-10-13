@@ -17,7 +17,7 @@ import java.util.List;
  * Created by geyiyang on 2017/9/20.
  */
 
-public class MyMusicAdaper extends BaseAdapter {
+public class MyMusicAdapter extends BaseAdapter {
     private List<MusicInfo> mMusicInfoList;
     private Context mContext;
     private static int playingPostion;
@@ -26,11 +26,11 @@ public class MyMusicAdaper extends BaseAdapter {
         playingPostion = position;
     }
 
-    public int getPlayingPosition() {
+    public static int getPlayingPosition() {
         return playingPostion;
     }
 
-    public MyMusicAdaper(Context context, List<MusicInfo> musicInfoList ) {
+    public MyMusicAdapter(Context context, List<MusicInfo> musicInfoList ) {
         mMusicInfoList = musicInfoList;
         mContext = context;
     }
@@ -73,6 +73,9 @@ public class MyMusicAdaper extends BaseAdapter {
         mdld.setImageResource(R.drawable.list_icn_dld_ok);
 //        mpopup_menu.setImageResource(R.drawable.actionbar_more);
         mplaying.setVisibility(View.GONE);
+        if (position == playingPostion) {
+            mplaying.setVisibility(View.VISIBLE);
+        }
         return view;
     }
 }

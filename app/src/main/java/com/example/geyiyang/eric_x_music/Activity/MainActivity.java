@@ -17,12 +17,11 @@ import com.example.geyiyang.eric_x_music.Service.PlayingService;
 public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
 
-//    private MyMusicAdaper myMusicAdaper;
     private MyPagerAdapter mypagerAdapter;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private FragmentMusic fragmentMusic;
+    private FragmentMusic fragmentMusic;//暂时不考虑album和singer界面，可自行类比
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,8 +49,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-//        Log.i(TAG, "--->"+Environment.getExternalStorageState());
-//        Log.i(TAG, "--->"+Environment.getExternalStorageDirectory().canWrite());
         Log.i(TAG, "onCreate: --->");
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
@@ -85,8 +82,8 @@ public class MainActivity extends BaseActivity {
     public PlayingService getPlayService() {
         return playingService;//继承BaseActivity
     }
+
     private void initalView() {
-//        fragmentMusic = new FragmentMusic();
         toolbar = (Toolbar) findViewById(R.id.toolBar);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -94,7 +91,7 @@ public class MainActivity extends BaseActivity {
         tabLayout.addTab(tabLayout.newTab());
         tabLayout.addTab(tabLayout.newTab());
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        mypagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mypagerAdapter = new MyPagerAdapter(getSupportFragmentManager());//这里开始初始化Fragment
         viewPager.setAdapter(mypagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 //        toolbar.setNavigationIcon(R.drawable.actionbar_back);

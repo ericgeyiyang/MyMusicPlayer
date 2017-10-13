@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.geyiyang.eric_x_music.Adapter.MyMusicAdapter;
 import com.example.geyiyang.eric_x_music.Model.MusicInfo;
 import com.example.geyiyang.eric_x_music.Utils.MusicUtils;
 import com.example.geyiyang.eric_x_music.Utils.SharedPreferenceUtils;
@@ -33,19 +34,29 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     private List<MusicInfo> musicInfoList;
     private OnMusicEventListener musicEventListener;
     // 单线程池
-    private ExecutorService progressUpdatedListener = Executors.newSingleThreadExecutor();
+    private ExecutorService progressUpdatedListener = Executors.newSingleThreadExecutor();//单线程池
     public class MyBinder extends Binder {
         public PlayingService getService() {
             return PlayingService.this;
         }
     }
 
+    /**
+     * 启动服务时候调用，多次启动会多次调用,后续绑定不会调用
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand: --->");
         return Service.START_STICKY;
     }
 
+    /**
+     * 启动服务时候调用，多次启动服务只调用一次
+     */
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate: --->servicestarted");
@@ -59,14 +70,14 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
             Toast.makeText(getApplicationContext(),
                     "当前手机没有MP3文件", Toast.LENGTH_LONG).show();
         }
-        //开始更新进度的线程
 
+        //开始更新进度的线程
         progressUpdatedListener.execute(new Runnable() {
             @Override
             public void run() {
                 while (true) {
                     if (mediaPlayer != null && mediaPlayer.isPlaying() && musicEventListener != null) {
-                        musicEventListener.onPublish(mediaPlayer.getCurrentPosition());
+                        musicEventListener.onPublish(mediaPlayer.getCurrentPosition());//这是onPublish函数的触发条件，在新线程中
                     }
                     /*
 			         * SystemClock.sleep(millis) is a utility function very similar
@@ -80,13 +91,30 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
             }
         });
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind: ---->");
+        return binder;
+    }
+
+    /**
+     * 重新绑定时候调用
+     * @param intent
+     */
     @Override
     public void onRebind(Intent intent) {
         Log.i(TAG, "onRebind: --->");
         super.onRebind(intent);
-//        if (musicEventListener != null)
-//            musicEventListener.onChange(playingPosition);
+
     }
+
+    /**
+     * 解绑时候调用
+     * @param intent
+     * @return
+     */
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i(TAG, "onUnbind: --->");
@@ -139,17 +167,19 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
                 public void onPrepared(MediaPlayer mp) {
                     Log.i(TAG, "onPrepared: --->startPlaying");
                     mediaPlayer.start();
+                    //这里很关键，play函数会调用onChange回调函数
+                    //也就是调用play就会触发监听，main和play两个activity函数的onChange会触发
+                    if (musicEventListener != null) {
+                        musicEventListener.onChange(playingPosition);//Onchange函数的触发条件是执行了Play函数，绑定服务成功时也会调用
+                    }
                 }
             });
-            //这里很关键，play函数会调用onChange回调函数
-            //也就是调用play就会触发监听，main和play两个activity函数的onChange会触发
-            if (musicEventListener != null) {
-                musicEventListener.onChange(position);
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         playingPosition = position;
+        MyMusicAdapter.setPlayingPosition(position);
         SharedPreferenceUtils.put(PLAY_POS, playingPosition);
     }
 
@@ -158,7 +188,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
             mediaPlayer.pause();
         }
     }
-
+    //暂停后播放
     public void replay() {
         mediaPlayer.start();
     }
@@ -206,14 +236,10 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     }
 
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
+
 
     /**
-     * 音乐播放回调接口
+     * 音乐播放回调接口定义
      */
     public interface OnMusicEventListener {
         public void onPublish(int percent);//更新进度条
