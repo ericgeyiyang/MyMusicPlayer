@@ -10,8 +10,8 @@
 
 ### Screenshots
 <p align="center">
-<img src="http://chuantu.biz/t6/94/1507889720x2093756394.png" width = "45%" height="45%" />
-<img src="http://chuantu.biz/t6/94/1507889794x2918527086.png" width = "45%" height="45%" />
+<img src="http://chuantu.biz/t6/102/1508307274x2918527086.png" width = "45%" height="45%" />
+<img src="http://chuantu.biz/t6/102/1508307365x2918527086.png" width = "45%" height="45%" />
 
 </p>
 
