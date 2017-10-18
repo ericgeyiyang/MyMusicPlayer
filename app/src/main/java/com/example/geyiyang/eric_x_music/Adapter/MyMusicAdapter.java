@@ -66,10 +66,10 @@ public class MyMusicAdapter extends BaseAdapter {
         TextView mSize = (TextView) view.findViewById(R.id.song_size);
         TextView mArtist = (TextView) view.findViewById(R.id.song_artist);
         TextView mAlbum = (TextView) view.findViewById(R.id.song_albumn);
-        mTitle.setText(mMusicInfoList.get(position).getTitle().toString());
+        mTitle.setText(mMusicInfoList.get(position).getTitle());
         mSize.setText(mMusicInfoList.get(position).getSize());
-        mAlbum.setText(mMusicInfoList.get(position).getAlbum().toString());
-        mArtist.setText(mMusicInfoList.get(position).getArtist().toString());
+        mAlbum.setText(mMusicInfoList.get(position).getAlbum());
+        mArtist.setText(mMusicInfoList.get(position).getArtist());
         mdld.setImageResource(R.drawable.list_icn_dld_ok);
 //        mpopup_menu.setImageResource(R.drawable.actionbar_more);
         mplaying.setVisibility(View.GONE);

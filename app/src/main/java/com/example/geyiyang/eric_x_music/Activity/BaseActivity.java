@@ -19,11 +19,13 @@ import com.example.geyiyang.eric_x_music.Service.PlayingService;
 public abstract class BaseActivity extends AppCompatActivity {
     protected PlayingService playingService;
     private static final String TAG = "BaseActivity";
+
     /**
      * 不同Activity的change功能不同，更换Activity时需要从新解绑以前服务和绑定到当前Activity，
      * 绑定成功后会调用下面函数并执行覆盖后的onChange函数更新页面，
      * Service为当前Activity提供服务和监听功能，监听触发条件由服务定义，事件触发结果由下面两个函数覆盖实现
      */
+
     private ServiceConnection playingServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

@@ -16,8 +16,6 @@ import com.example.geyiyang.eric_x_music.Utils.MusicUtils;
 import com.example.geyiyang.eric_x_music.Utils.SharedPreferenceUtils;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static com.example.geyiyang.eric_x_music.Constant.Constant.PLAY_POS;
 
@@ -33,8 +31,24 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     public final IBinder binder = new MyBinder();
     private List<MusicInfo> musicInfoList;
     private OnMusicEventListener musicEventListener;
+    private Thread myThread;
+
+    public Thread getMyThread() {
+        return myThread;
+    }
+
+
+    public void StartThread() {
+        myThread = new MyThread();
+        myThread.start();
+    }
     // 单线程池
-    private ExecutorService progressUpdatedListener = Executors.newSingleThreadExecutor();//单线程池
+//    private ExecutorService progressUpdatedListener = Executors.newSingleThreadExecutor();//单线程池
+
+//    public ExecutorService getProgressUpdatedListener() {
+//        return progressUpdatedListener;
+//    }
+
     public class MyBinder extends Binder {
         public PlayingService getService() {
             return PlayingService.this;
@@ -64,21 +78,41 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
         musicInfoList = MusicUtils.ScanMusic(getApplicationContext());
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
-        playingPosition = (Integer)
-                SharedPreferenceUtils.get(this, PLAY_POS, 0);//第三个参数是key不存在的默认返回值
+        playingPosition = (Integer) SharedPreferenceUtils.get(this, PLAY_POS, 0);//第三个参数是key不存在的默认返回值
         if (musicInfoList.size() <= 0) {
             Toast.makeText(getApplicationContext(),
                     "当前手机没有MP3文件", Toast.LENGTH_LONG).show();
         }
 
         //开始更新进度的线程
-        progressUpdatedListener.execute(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    if (mediaPlayer != null && mediaPlayer.isPlaying() && musicEventListener != null) {
-                        musicEventListener.onPublish(mediaPlayer.getCurrentPosition());//这是onPublish函数的触发条件，在新线程中
-                    }
+//        progressUpdatedListener.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (true) {
+//                    if (mediaPlayer != null && mediaPlayer.isPlaying() && musicEventListener != null) {
+//                        musicEventListener.onPublish(mediaPlayer.getCurrentPosition());//这是onPublish函数的触发条件，在新线程中
+//                    }
+//                    /*
+//			         * SystemClock.sleep(millis) is a utility function very similar
+//			         * to Thread.sleep(millis), but it ignores InterruptedException.
+//			         * Use this function for delays if you do not use
+//			         * Thread.interrupt(), as it will preserve the interrupted state
+//			         * of the thread. 这种sleep方式不会被Thread.interrupt()所打断
+//			         */
+//                    SystemClock.sleep(200);
+//                }
+//            }
+//        });
+    }
+    public class MyThread extends Thread{
+
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            while (true) {
+                if (mediaPlayer != null && mediaPlayer.isPlaying() && musicEventListener != null) {
+                    musicEventListener.onPublish(mediaPlayer.getCurrentPosition());//这是onPublish函数的触发条件，在新线程中
+                }
                     /*
 			         * SystemClock.sleep(millis) is a utility function very similar
 			         * to Thread.sleep(millis), but it ignores InterruptedException.
@@ -86,10 +120,12 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
 			         * Thread.interrupt(), as it will preserve the interrupted state
 			         * of the thread. 这种sleep方式不会被Thread.interrupt()所打断
 			         */
-                    SystemClock.sleep(200);
+                SystemClock.sleep(200);
+                if (this.interrupted()) {
+                    return;
                 }
             }
-        });
+        }
     }
 
     @Nullable
@@ -221,8 +257,8 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
      * 拖放到指定位置进行播放
      */
     public void seek(int msec) {
-        if (!isPlaying())
-            return;
+//        if (!isPlaying())
+//            return;
         mediaPlayer.seekTo(msec);
     }
 

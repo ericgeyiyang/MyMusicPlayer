@@ -1,5 +1,7 @@
 package com.example.geyiyang.eric_x_music.Activity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,6 +11,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -41,12 +45,13 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
     private ImageView imageView_back;
     private ImageView imageView_background;
     private ImageView imageView_disc;
-
+    private ImageView imageView_needle;
     private SeekBar seekBar;
     private List<MusicInfo> musicInfoList;
 
     private Myhandler handler;
-
+    FrameLayout rotate_layout;
+    ObjectAnimator rotateAnimation, needleAnimation;
     /**
      * 更新seekbar等UI
      */
@@ -97,6 +102,9 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy: --->");
+        getPlayService().getMyThread().interrupt();
+        rotateAnimation.setAutoCancel(true);
+        needleAnimation.setAutoCancel(true);
     }
 
     /**
@@ -121,6 +129,7 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         Log.i(TAG, "onChange: --->");
         onPlay(position);
         setBackground(position);
+        getPlayService().StartThread();
 //        imageView_play.setImageResource(R.drawable.playing_btn_pause);
     }
 
@@ -140,6 +149,13 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
                 .centerCrop()
                 .crossFade(500)
                 .into(imageView_disc);
+        if (getPlayService().isPlaying()) {
+            rotateAnimation.start();
+            needleAnimation.start();
+        } else {
+            rotateAnimation.pause();
+            needleAnimation.pause();
+        }
     }
 
     /**
@@ -167,10 +183,14 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
                 if (getPlayService().isPlaying()) {
                     imageView_play.setImageResource(R.drawable.playing_btn_play);
                     getPlayService().pause();
+                    needleAnimation.reverse();
+                    rotateAnimation.pause();
                 } else
                 {
                     getPlayService().replay();
                     imageView_play.setImageResource(R.drawable.playing_btn_pause);
+                    needleAnimation.start();
+                    rotateAnimation.resume();
                 }
                 break;
             case R.id.playing_pre:
@@ -192,6 +212,7 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
     }
 
     private void initalView() {
+
         handler = new Myhandler();
         toolbar = (Toolbar) findViewById(R.id.play_toolbar);
         imageView_next = (ImageView) findViewById(R.id.playing_next);
@@ -200,12 +221,18 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         imageView_back = (ImageView) findViewById(R.id.back);
         imageView_background = (ImageView) findViewById(R.id.play_background);
         imageView_disc = (ImageView) findViewById(R.id.default_disk_img);
+        imageView_needle = (ImageView) findViewById(R.id.needle);
 
         textView_singer = (TextView) findViewById(R.id.singer);
         textView_title = (TextView) findViewById(R.id.song);
         textView_currentTime = (TextView) findViewById(R.id.currentTime);
         textView_totalTime = (TextView) findViewById(R.id.totalTime);
+
+        rotate_layout = (FrameLayout) findViewById(R.id.rotate_layout);
+
         seekBar = (SeekBar) findViewById(R.id.playSeekBar);
+        rotateAnim();
+        needleAnim();
         // 动态设置seekbar的margin
         ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) seekBar
                 .getLayoutParams();
@@ -215,12 +242,15 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                    getPlayService().getMyThread().interrupt();
+            }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 int progress = seekBar.getProgress();
                 getPlayService().seek(progress);
+                getPlayService().StartThread();
             }
         });
         imageView_play.setOnClickListener(this);
@@ -239,6 +269,21 @@ public class MyMediaPlayerActivity extends BaseActivity implements View.OnClickL
         setSupportActionBar(toolbar);
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        getSupportActionBar().setHomeButtonEnabled(true);
+    }
+    //黑胶旋转动画效果
+    public void rotateAnim() {
+        rotateAnimation = ObjectAnimator.ofFloat(rotate_layout, "rotation", 0, 359);
+        rotateAnimation.setInterpolator(new LinearInterpolator());
+        rotateAnimation.setDuration(25 * 1000);
+        rotateAnimation.setRepeatCount(ValueAnimator.INFINITE);
+    }
+
+    //指针旋转动画效果
+    public void needleAnim() {
+        needleAnimation = ObjectAnimator.ofFloat(imageView_needle, "rotation", -25, 0);
+        needleAnimation.setDuration(500);
+        needleAnimation.setRepeatCount(0);
+        needleAnimation.setInterpolator(new LinearInterpolator());
     }
 }
 
