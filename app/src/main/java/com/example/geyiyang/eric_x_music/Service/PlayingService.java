@@ -8,7 +8,6 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.geyiyang.eric_x_music.Adapter.MyMusicAdapter;
 import com.example.geyiyang.eric_x_music.Model.MusicInfo;
@@ -28,8 +27,23 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     private static final String TAG = "PlayingService";
     private MediaPlayer mediaPlayer;
     private int playingPosition=0; // 当前正在播放
+    private MusicUtils mMusicUtils;
+
+
+
     public final IBinder binder = new MyBinder();
-    private List<MusicInfo> musicInfoList;
+    private List<MusicInfo> musicInfoList=null;
+
+    public List<MusicInfo> getMusicInfoList() {
+        return musicInfoList;
+    }
+
+    public static boolean sServiceStarted;
+    public void setMusicInfoList(List<MusicInfo> musicInfoList) {
+        this.musicInfoList = musicInfoList;
+//        MusicUtils.setMusicInfoList(musicInfoList);
+    }
+
     private OnMusicEventListener musicEventListener;
     private Thread myThread;
 
@@ -65,6 +79,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand: --->");
+
         return Service.START_STICKY;
     }
 
@@ -73,16 +88,20 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
      */
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate: --->servicestarted");
+        Log.i(TAG, "onCreate: --->servicestarted,scanfile");
         super.onCreate();
+//        mMusicUtils = new MusicUtils(getApplicationContext());
+//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+//        {
+//            MusicUtils.ScanSdcard(getApplicationContext(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/Music");//扫描MediaStore的音乐，但List还没有更新
+//        }
+//        mMusicUtils.scanFile(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Music");
+        sServiceStarted = true;
         musicInfoList = MusicUtils.ScanMusic(getApplicationContext());
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
         playingPosition = (Integer) SharedPreferenceUtils.get(this, PLAY_POS, 0);//第三个参数是key不存在的默认返回值
-        if (musicInfoList.size() <= 0) {
-            Toast.makeText(getApplicationContext(),
-                    "当前手机没有MP3文件", Toast.LENGTH_LONG).show();
-        }
+
 
         //开始更新进度的线程
 //        progressUpdatedListener.execute(new Runnable() {
@@ -110,16 +129,16 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
         public void run() {
             // TODO Auto-generated method stub
             while (true) {
-                if (mediaPlayer != null && mediaPlayer.isPlaying() && musicEventListener != null) {
+                if (mediaPlayer != null && musicEventListener != null) {
                     musicEventListener.onPublish(mediaPlayer.getCurrentPosition());//这是onPublish函数的触发条件，在新线程中
                 }
-                    /*
-			         * SystemClock.sleep(millis) is a utility function very similar
-			         * to Thread.sleep(millis), but it ignores InterruptedException.
-			         * Use this function for delays if you do not use
-			         * Thread.interrupt(), as it will preserve the interrupted state
-			         * of the thread. 这种sleep方式不会被Thread.interrupt()所打断
-			         */
+                /*
+			     * SystemClock.sleep(millis) is a utility function very similar
+			     * to Thread.sleep(millis), but it ignores InterruptedException.
+			     * Use this function for delays if you do not use
+			     * Thread.interrupt(), as it will preserve the interrupted state
+			     * of the thread. 这种sleep方式不会被Thread.interrupt()所打断
+			     */
                 SystemClock.sleep(200);
                 if (this.interrupted()) {
                     return;
@@ -132,6 +151,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     @Override
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind: ---->");
+
         return binder;
     }
 
@@ -163,6 +183,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
         if (mediaPlayer != null)
             mediaPlayer.release();
         mediaPlayer = null;
+        sServiceStarted = false;
         super.onDestroy();
 
     }
@@ -267,7 +288,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        next();
+        play(playingPosition);
         return false;
     }
 
