@@ -16,6 +16,7 @@
 ### Screenshots
 
 ![](gif/Home.png)
+
 ![](gif/Playing interface.png)
 
 ### Defect
