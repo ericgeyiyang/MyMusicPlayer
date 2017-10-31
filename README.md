@@ -10,7 +10,7 @@
 
 ### ScreenRecords
 
-![](http//github.com/Eric-Ge/MyMusicPlayer/tree/master/gif/2017.10.31-16.gif)
+![](gif/2017.10.31-16.gif)
 
 
 ### Defect
