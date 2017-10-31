@@ -14,10 +14,9 @@
 
 
 ### Screenshots
-<p align="center">
-<img src="https://github.com/Eric-Ge/MyMusicPlayer/edit/master/gif/Home.png" width = "45%" height="45%"/>
-<img src="https://github.com/Eric-Ge/MyMusicPlayer/edit/master/gif/Playing interface.png" width = "45%" height="45%"/>
-</p>
+
+![](gif/Home.png)
+![](gif/Playing interface.png)
 
 ### Defect
 
