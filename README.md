@@ -17,7 +17,7 @@
 
 ![](gif/Home.png)
 
-![](gif/Playing interface.png)
+![](gif/Playing_interface.png)
 
 ### Defect
 
