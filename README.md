@@ -9,9 +9,9 @@
 - optimization not considered yet
 
 ### ScreenRecords
-<p align="center">
+
 ![image](http//github.com/Eric-Ge/MyMusicPlayer/tree/master/gif/2017.10.31-16.gif)
-</p>
+
 
 ### Defect
 
