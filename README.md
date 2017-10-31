@@ -15,9 +15,12 @@
 
 ### Screenshots
 
-![](gif/Home.png)
 
-![](gif/Playing_interface.png)
+<p align="center">
+
+<img src="http://chuantu.biz/t6/120/1509445663x2093756394.png" width = "45%" height="45%"/>
+<img src="http://chuantu.biz/t6/120/1509445788x2918527086.png" width = "45%" height="45%"/>
+</p>
 
 ### Defect
 
