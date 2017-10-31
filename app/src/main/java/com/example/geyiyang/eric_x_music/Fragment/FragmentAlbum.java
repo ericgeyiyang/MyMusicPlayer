@@ -1,7 +1,6 @@
 package com.example.geyiyang.eric_x_music.Fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,16 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.example.geyiyang.eric_x_music.Activity.MainActivity;
-import com.example.geyiyang.eric_x_music.Activity.MyMediaPlayerActivity;
-import com.example.geyiyang.eric_x_music.Adapter.MyMusicAdapter;
+import com.example.geyiyang.eric_x_music.Adapter.MyAlbumAdapter;
+import com.example.geyiyang.eric_x_music.Model.AlbumInfo;
 import com.example.geyiyang.eric_x_music.Model.MusicInfo;
 import com.example.geyiyang.eric_x_music.R;
 import com.example.geyiyang.eric_x_music.Utils.MusicUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,28 +26,32 @@ import java.util.List;
  */
 
 public class FragmentAlbum extends Fragment {
-    private static final String TAG = "FragmentAlbum";
-    private MyMusicAdapter myMusicAdapter;
-    private List<MusicInfo> musicInfoList;//得到MusicUtils中的音乐列表
-    private ListView listView;
-    private ImageView imageView;
-    private ImageView imageViewPre=null;//上一首播放歌曲的标志
-    private MainActivity mainActivity;
+    private static final String TAG = "FragmentArtist";
+    private MyAlbumAdapter mMyAlbumAdapter;
+    private List<MusicInfo> mMusicInfos;
+    private List<AlbumInfo> mAlbumInfos;
+    private ListView mListView;
+    private MainActivity mMainActivity;
+    private List<String> mAlbum;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mainActivity = (MainActivity) getActivity();//获得MainActivity对象
+        mMainActivity = (MainActivity) getActivity();//获得MainActivity对象
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate: --->");
         super.onCreate(savedInstanceState);
+
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_musiclistview, container, false);
+        Log.i(TAG, "onCreateView: --->");
+        View v = inflater.inflate(R.layout.fragment_singerlistview, container, false);
         return v;
     }
 
@@ -57,11 +60,52 @@ public class FragmentAlbum extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.i(TAG, "onViewCreated: --->");
         super.onViewCreated(view, savedInstanceState);
-        listView=(ListView)view.findViewById(R.id.MusicList);
-        listView.setOnItemClickListener(musicItemClickListener);
-        musicInfoList = MusicUtils.getMusicInfoList();
-        myMusicAdapter = new MyMusicAdapter(getActivity(), musicInfoList);
-        listView.setAdapter(myMusicAdapter);
+        mListView=(ListView)view.findViewById(R.id.SingerList);
+        mListView.setOnItemClickListener(musicItemClickListener);
+        initWidgets();
+    }
+    private void initWidgets() {
+        mAlbumInfos=new ArrayList<>();
+        mMusicInfos = MusicUtils.getMusicInfoList();
+        mAlbum=new ArrayList<>();
+        //填充数据
+        for (int i=0;i< mMusicInfos.size();i++){
+            mAlbum.add(mMusicInfos.get(i).getAlbum());
+        }
+        //去重,计算专辑的歌曲数目
+        UpdateInfo(mAlbum);
+        mMyAlbumAdapter= new MyAlbumAdapter(getActivity(), mAlbumInfos);
+        mListView.setAdapter(mMyAlbumAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+    }
+
+    private void UpdateInfo(List<String> list)   {
+        List<MusicInfo> temp = new ArrayList<>(mMusicInfos.size());
+        for (int i = 0; i < mMusicInfos.size(); i++) {
+            temp.add(mMusicInfos.get(i));
+        }
+        int num=1;
+        for  ( int  i  =   0 ; i  <  list.size()  -   1 ; i ++ )   {
+            num=1;
+            for  ( int  j  =  list.size()  -   1 ; j  >  i; j -- )   {
+                if  (list.get(j).equals(list.get(i)))   {
+                    list.remove(j);
+                    temp.remove(j);
+                    num++;
+                }
+            }
+            AlbumInfo albumInfo=new AlbumInfo();
+            albumInfo.setAlbum(mAlbum.get(i));
+            albumInfo.setCoverUri(temp.get(i).getCoverUri());
+            albumInfo.setNumofTracks(num);
+            albumInfo.setArtist(temp.get(i).getArtist());
+            mAlbumInfos.add(albumInfo);
+        }
     }
     /**
      * view创建完毕 回调通知activity绑定歌曲播放服务,onServiceConnected调用onChange更新页面
@@ -70,72 +114,53 @@ public class FragmentAlbum extends Fragment {
     public void onStart() {
         super.onStart();
         Log.i(TAG, "onStart: --->");
-//        mainActivity.allowBindService();
+
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.i(TAG, "onActivityCreated: --->");
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        //        Log.i(TAG, "onPause: --->unbindservice");
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        //        Log.i(TAG, "onDestroyView: --->");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
         Log.i(TAG, "onStop: --->");
-//        mainActivity.allowUnbindService();//音乐不会停止
     }
 
 
-    //mainactivity和PlayingActivity更换音乐时以及重新开启应用绑定服务时Onchange调用该函数
-    public void onPlay(int position) {
-        onItemPlay(position);
-    }
-    /**
-     * 播放时小喇叭显示当前播放条目
-     * 实现播放的歌曲条目可见
-     * @param position 当前播放歌曲位置
-     */
-    private void onItemPlay(int position) {
-        Log.i(TAG, "onItemPlay: --->");
-//        listView.smoothScrollToPosition(position);
-//        //之前播放音乐位置
-//        int prePosition = myMusicAdaper.getPlayingPosition();
-//
-////        // 如果新的播放位置不在可视区域
-////        // 则直接返回
-////        if (listView.getLastVisiblePosition() < position
-////                || listView.getFirstVisiblePosition() > position)
-////            return;
-//
-//
-//        // 如果上次播放的位置在可视区域内
-//        // 则手动设置小喇叭invisible
-//        if (prePosition >= listView.getFirstVisiblePosition() && prePosition <= listView.getLastVisiblePosition()) {
-//            imageView = (ImageView) listView.getChildAt(prePosition-listView.getFirstVisiblePosition()).findViewById(R.id.playing);
-//            imageView.setVisibility(View.GONE);
-//        }
-//        imageViewPre = imageView;
-//        imageView = (ImageView) listView.getChildAt(position).findViewById(R.id.playing);
-//        if (imageViewPre != null) {
-//            imageViewPre.setVisibility(View.GONE);
-//        }
-//        imageView.setVisibility(View.VISIBLE);
-    }
+
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy: --->");
         super.onDestroy();
     }
 
+    /**
+     * 点击歌曲响应，开启另一应用
+     */
     private AdapterView.OnItemClickListener musicItemClickListener=new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.i(TAG, "onItemClick: --->listitem clicked");
-            mainActivity.getPlayService().play(position);
-//            imageViewPre = imageView;
-//            imageView = (ImageView) listView.getChildAt(position).findViewById(R.id.playing);
-//            if (imageViewPre != null) {
-//                imageViewPre.setVisibility(View.GONE);
-//            }
-//            imageView.setVisibility(View.VISIBLE);
-
-            Intent intent = new Intent(getActivity(), MyMediaPlayerActivity.class);
-//            intent.putExtra("Position", position);
-            startActivity(intent);
         }
     };
 

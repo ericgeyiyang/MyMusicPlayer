@@ -8,11 +8,9 @@
 - use only for learning material and dicussion
 - optimization not considered yet
 
-### Screenshots
+### ScreenRecords
 <p align="center">
-<img src="http://chuantu.biz/t6/102/1508307274x2918527086.png" width = "45%" height="45%" />
-<img src="http://chuantu.biz/t6/102/1508307365x2918527086.png" width = "45%" height="45%" />
-
+![](gif/2017.10.31-16.gif)
 </p>
 
 ### Defect

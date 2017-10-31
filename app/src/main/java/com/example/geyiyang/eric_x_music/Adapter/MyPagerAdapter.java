@@ -5,8 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.example.geyiyang.eric_x_music.Fragment.FragmentAlbum;
+import com.example.geyiyang.eric_x_music.Fragment.FragmentArtist;
 import com.example.geyiyang.eric_x_music.Fragment.FragmentMusic;
-import com.example.geyiyang.eric_x_music.Fragment.FragmentSinger;
 
 /**
  * Created by geyiyang on 2017/9/22.
@@ -17,20 +17,20 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter{
     public MyPagerAdapter(FragmentManager fm) {
         super(fm);
     }
-    private FragmentMusic fragment_music = new FragmentMusic();
-    private FragmentSinger fragment_singer = new FragmentSinger();
-    private FragmentAlbum fragment_album = new FragmentAlbum();
+    private FragmentMusic mFragmentMusic = new FragmentMusic();
+    private FragmentArtist mFragmentArtist = new FragmentArtist();
+    private FragmentAlbum mFragmentAlbum = new FragmentAlbum();
     @Override
     public Fragment getItem(int position) {
 //        return ArrayListFragment.newInstance(position);
 
         switch (position) {
             case 0:
-                return fragment_music;
+                return mFragmentMusic;
             case 1:
-                return fragment_singer;
+                return mFragmentArtist;
             case 2:
-                return fragment_album;
+                return mFragmentAlbum;
         }
         return null;
     }

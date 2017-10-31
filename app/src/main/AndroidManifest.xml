@@ -5,6 +5,7 @@
     <!-- xmlns:toolbar="http://schemas.android.com/apk/res-auto" -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!--<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
@@ -16,8 +17,14 @@
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".Activity.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data  android:name="android.app.searchable"
+                        android:resource="@xml/searchable"/>
         </activity>
         <activity
             android:name=".Activity.SplashActivity"
@@ -25,12 +32,21 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+
             </intent-filter>
         </activity>
+        <!--<receiver-->
+            <!--android:name=".Activity.SplashActivity$MyReceiver" >-->
+            <!--<intent-filter>-->
+                <!--&lt;!&ndash; 动作设置为发送的广播动作 &ndash;&gt;-->
+                <!--<action android:name="com.example.completescanfile"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
         <activity android:name=".Activity.MyMediaPlayerActivity"
                   android:theme="@style/ImageTranslucentTheme"/>
 
-        <service android:name=".Service.PlayingService"/>
+        <service android:name=".Service.PlayingService">
+        </service>
     </application>
 
 </manifest>

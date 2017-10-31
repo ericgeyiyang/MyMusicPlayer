@@ -1,5 +1,6 @@
 package com.example.geyiyang.eric_x_music.Fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,10 +29,23 @@ import java.util.List;
 public class FragmentMusic extends Fragment {
     private static final String TAG = "FragmentMusic";
     private MyMusicAdapter myMusicAdapter;
-    private List<MusicInfo> musicInfoList;//得到MusicUtils中的音乐列表
+    private MusicUtils mMusicUtils;
+
+    public void setMusicInfoList(List<MusicInfo> musicInfoList) {
+        this.musicInfoList = musicInfoList;
+    }
+
+    private List<MusicInfo> musicInfoList=null;//得到MusicUtils中的音乐列表
     private ListView listView;
     private MainActivity mainActivity;
-    private boolean isVisible;
+    public class MyReceiver extends BroadcastReceiver {
+        public MyReceiver() {
+        }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -64,6 +78,7 @@ public class FragmentMusic extends Fragment {
         musicInfoList = MusicUtils.getMusicInfoList();
         myMusicAdapter = new MyMusicAdapter(getActivity(), musicInfoList);
         listView.setAdapter(myMusicAdapter);
+        listView.setTextFilterEnabled(true);
     }
     /**
      * view创建完毕 回调通知activity绑定歌曲播放服务,onServiceConnected调用onChange更新页面
@@ -88,7 +103,6 @@ public class FragmentMusic extends Fragment {
     @Override
     public void onPause() {
         Log.i(TAG, "onPause: --->unbindservice");
-        isVisible=false;
         super.onPause();
         mainActivity.allowUnbindService();
     }
@@ -107,7 +121,6 @@ public class FragmentMusic extends Fragment {
     public void onResume() {
         Log.i(TAG, "onResume: --->bindService");
         super.onResume();
-        isVisible=true;
         mainActivity.allowBindService();
     }
 
@@ -121,14 +134,23 @@ public class FragmentMusic extends Fragment {
 
     //mainactivity和PlayingActivity更换音乐时以及重新开启应用绑定服务时Onchange调用该函数
     public void onPlay(int position) {
-        if(isVisible)
             onItemPlay(position);
     }
 
+    public void clearTextFilter() {
+        myMusicAdapter.setMusicInfoList(MusicUtils.getMusicInfoList());
+//        mainActivity.getPlayService().setMusicInfoList(myMusicAdapter.getAllMusicInfoList());
+        myMusicAdapter.notifyDataSetChanged();
+    }
 
+    public void setFilterText(String text) {
+        myMusicAdapter.getFilter().filter(text);
+        musicInfoList = myMusicAdapter.getMusicInfoList();
+    }
     /**
      * 播放时小喇叭显示当前播放条目实现播放的歌曲条目可见
      * 位置传递给MyMusicAdapter，更新listview时显示小喇叭
+     *
      * @param position 当前播放歌曲位置
      */
 
@@ -180,12 +202,14 @@ public class FragmentMusic extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.i(TAG, "onItemClick: --->listitem clicked");
-            mainActivity.getPlayService().play(position);//开始播放，瞬间更新本应用后开启播放界面
+            int absolute_position = musicInfoList.get(position).getPosition();//获得点击的歌曲在总列表中的绝对位置
+            mainActivity.getPlayService().play(absolute_position);//开始播放，瞬间更新本应用后开启播放界面
             MyMusicAdapter.setPlayingPosition(position);
             Intent intent = new Intent(getActivity(), MyMediaPlayerActivity.class);
 //            intent.putExtra("position", position);
             startActivity(intent);
         }
     };
+
 
 }

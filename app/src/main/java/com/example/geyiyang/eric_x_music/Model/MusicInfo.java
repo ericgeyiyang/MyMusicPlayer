@@ -19,22 +19,35 @@ public class MusicInfo {
     private String mMusicUri="";
     private String pubYear="";
     private String coverUri;
+    private Boolean mLike=false;
     // 文件名
     private String fileName;
     // [网络歌曲]专辑封面bitmap
     private Bitmap cover;
     // 文件大小
+    private int position;//歌曲在总列表中的位置
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
     public MusicInfo() {
     }
-    public MusicInfo(Type type, String title, String artist, String album, long size, String musicUri) {
-        mType = type;
-        mTitle = title;
-        mArtist = artist;
-        Album = album;
-        mSize=size;
-        mMusicUri = musicUri;
-    }
+//    public MusicInfo(Type type, String title, String artist, String album, long size, String musicUri) {
+//        mType = type;
+//        mTitle = title;
+//        mArtist = artist;
+//        Album = album;
+//        mSize=size;
+//        mMusicUri = musicUri;
+//    }
+
+    public Boolean getmLike() {return mLike;}
+    public void setmLike(Boolean mLike) {this.mLike = mLike;}
 
     public String getCoverUri() {return coverUri;}
     public void setCoverUri(String coverUri) {this.coverUri = coverUri;}

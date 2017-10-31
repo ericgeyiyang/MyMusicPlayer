@@ -7,14 +7,13 @@ package com.example.geyiyang.eric_x_music.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.example.geyiyang.eric_x_music.Model.MusicInfo;
 import com.example.geyiyang.eric_x_music.Model.MusicInfoComparator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,49 +24,132 @@ import java.util.List;
 
 public class MusicUtils {
     private static final String TAG = "MusicUtils";
+//    private AlertDialog mAlertDialog;
+//    private AlertDialog.Builder mBuilder;
+    private Context mContext = null;
+//    private MediaScannerConnection mMediaScannerConnection = null;
+//    private int scanTimes = 0;
+//    private File mFile;
+    /**文件路径集合**/
+//    private String[] filePaths;
+
     private static List<MusicInfo> musicInfoList = new ArrayList<>();//音乐列表储存在这里
 
-
+    public static void setMusicInfoList(List<MusicInfo> smusicInfoList) {
+        musicInfoList = smusicInfoList;
+    }
     public static List<MusicInfo> getMusicInfoList() {
         return musicInfoList;
     }
 
-    public static void ScanSdcard(Context context, String filePath) {
-
-        try {
-            File file = new File(filePath);
-            if (file.exists()) {
-                File[] fileArray = file.listFiles();
-                List<String> stringFileArray = new ArrayList<>();
-                for (int i = 0; i < fileArray.length; i++) {
-                    File f = fileArray[i];
-                    if (f.isFile()) {
-                        String name = f.getName();
-                        if (name.endsWith(".mp3") || name.endsWith(".wav") || name.endsWith("" +
-                                ".flac")) {
-                            context.sendBroadcast(new Intent(Intent
-                                    .ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + f
-                                    .getAbsolutePath())));
-                            //                            stringFileArray.add(f.getAbsolutePath());
-                        }
-                    }
-                }
-                ////                String[] paths = stringFileArray.toArray(new
-                /// String[stringFileArray.size()]);
-                ////                MediaScannerConnection.scanFile(context, paths, null,
-                ////                        new MediaScannerConnection.OnScanCompletedListener() {
-                ////                            public void onScanCompleted(String path, Uri uri) {
-                //////                                Log.i("ExternalStorage", "Scanned " + path
-                /// + ":");
-                //////                                Log.i("ExternalStorage", "-> uri=" + uri);
-                ////                            }
-                ////                        });
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "--->" + Log.getStackTraceString(e));
-        }
+    public MusicUtils() {
 
     }
+    public MusicUtils(Context context) {
+//        if (mMediaScannerConnection == null) {
+//            mMediaScannerConnection = new MediaScannerConnection(context,this);
+//        }
+        mContext = context;
+    }
+
+//    @Override
+//    public void onMediaScannerConnected() {
+//        for (int i = 0; i < filePaths.length; i++) {
+//            mMediaScannerConnection.scanFile(filePaths[i], null);//服务回调执行扫描
+//        }
+//    }
+//
+//    @Override
+//    public void onScanCompleted(String path, Uri uri) {
+//        scanTimes++;
+//        if (scanTimes == filePaths.length) {
+//            musicInfoList = ScanMusic();
+//            mMediaScannerConnection.disconnect();
+//            Intent intent = new  Intent();
+//            //设置intent的动作为com.example.broadcast，可以任意定义
+//            intent.setAction("com.example.completescanfile");
+//            mContext.sendBroadcast(intent);
+//            scanTimes=0;
+//        }
+
+
+//    }
+
+
+//    private void scan(File file) {
+//        if (file.exists())
+//        {
+//            if (file.isFile()) {
+//                mMediaScannerConnection.scanFile(file.getAbsolutePath(), null);
+//                return;
+//        }
+//            File[] fileArray = file.listFiles();
+//            for (File f : file.listFiles()) {
+//                scan(f);
+//            }
+//        }
+//    }
+//
+//    public void scanFile(String filePath) {
+//        try{
+//            File file = new File(filePath);
+//            Log.i(TAG, "scanFile: --->canread:"+file.canRead());
+//            if (file.exists()) {
+//                File[] files = file.listFiles();
+//                if (files != null) {
+//                    Log.i(TAG, "scanFile: ---listfile1："+files[1].getAbsolutePath());
+//                }
+//                for (int i = 0; i <files.length ; i++) {
+//                    if(files[i].isFile())
+//                        filePaths[i]=files[i].getAbsolutePath();
+//                }
+//                mMediaScannerConnection.connect();
+//            }
+//
+//        }catch (Exception e) {
+//            Log.e(TAG, "--->" + Log.getStackTraceString(e));
+//        }
+//    }
+
+
+
+//    public static void ScanSdcard(Context context, String filePath) {
+//
+//        try {
+//            File file = new File(filePath);
+//            boolean flag = file.canRead();
+//            if (file.canRead()) {
+//                File[] fileArray = file.listFiles();
+//                List<String> stringFileArray = new ArrayList<>();
+//                for (int i = 0; i < fileArray.length; i++) {
+//
+//                    File f = fileArray[i];
+//                    if (f.isFile()) {
+//                        String name = f.getName();
+//                        if (name.endsWith(".mp3") || name.endsWith(".wav") || name.endsWith("" +
+//                                ".flac")) {
+//                            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + f
+//                                    .getAbsolutePath())));
+//                            //                            stringFileArray.add(f.getAbsolutePath());
+//                        }
+//                    }
+//                }
+//                ////                String[] paths = stringFileArray.toArray(new
+//                /// String[stringFileArray.size()]);
+//                ////                MediaScannerConnection.scanFile(context, paths, null,
+//                ////                        new MediaScannerConnection.OnScanCompletedListener() {
+//                ////                            public void onScanCompleted(String path, Uri uri) {
+//                //////                                Log.i("ExternalStorage", "Scanned " + path
+//                /// + ":");
+//                //////                                Log.i("ExternalStorage", "-> uri=" + uri);
+//                ////                            }
+//                ////                        });
+//            }
+//        } catch (Exception e) {
+//            Log.e(TAG, "--->" + Log.getStackTraceString(e));
+//        }
+//
+//    }
 
 
     public static List<MusicInfo> ScanMusic(Context context) {
@@ -123,12 +205,22 @@ public class MusicUtils {
                 music.setCoverUri(coverUri);
                 music.setFileName(fileName);
                 music.setSize(fileSize);
+                music.setCover(BitmapFactory.decodeFile(coverUri));
                 music.setPubYear(year);
+                music.setmLike(false);
                 musicInfoList.add(music);
             }
         }
         cursor.close();
         Collections.sort(musicInfoList,comparator);
+        for (int i=0;i<musicInfoList.size();i++ )
+        {
+            musicInfoList.get(i).setPosition(i);
+        }
+        Intent intent = new  Intent();
+        //设置intent的动作为com.example.broadcast，可以任意定义
+        intent.setAction("com.example.completescanfile");
+        context.sendBroadcast(intent);
         return musicInfoList;
     }
 

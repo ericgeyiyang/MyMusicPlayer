@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,19 +15,50 @@ import com.example.geyiyang.eric_x_music.Adapter.MyPagerAdapter;
 import com.example.geyiyang.eric_x_music.Fragment.FragmentMusic;
 import com.example.geyiyang.eric_x_music.R;
 import com.example.geyiyang.eric_x_music.Service.PlayingService;
+import com.example.geyiyang.eric_x_music.Utils.MusicUtils;
+
+import static com.example.geyiyang.eric_x_music.R.id.tabLayout;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
 
-    private MyPagerAdapter mypagerAdapter;
-    private Toolbar toolbar;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private FragmentMusic fragmentMusic;//暂时不考虑album和singer界面，可自行类比
+    private MyPagerAdapter mMyPagerAdapter;
+    private Toolbar mToolbar;
+    private TabLayout mTabLayout;
+    private ViewPager mViewPager;
+    private SearchView mSearchView;
+    private FragmentMusic mFragmentMusic;
+
+    public FragmentMusic getFragmentMusic() {
+        return mFragmentMusic;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.music_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_search);
+        mSearchView=(SearchView) menuItem.getActionView();
+        mSearchView.setQueryHint("搜索歌曲");
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (!TextUtils.isEmpty(newText)&&mViewPager.getCurrentItem()==0) {
+                    mFragmentMusic.setFilterText(newText);//调用过滤算法
+                }
+                else if (mViewPager.getCurrentItem()==0)
+                {
+                    mFragmentMusic.clearTextFilter();
+                }
+                return false;
+            }
+        });
+        mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setIconifiedByDefault(true);
         return true;
     }
     @Override
@@ -64,10 +97,10 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onChange(int position) {
         Log.i(TAG, "onChange: --->position:"+position);
-        if (viewPager.getCurrentItem() == 0) {
-            fragmentMusic = (FragmentMusic) mypagerAdapter.getItem(0);
-            fragmentMusic.onPlay(position);
-
+        playingService.setMusicInfoList(MusicUtils.getMusicInfoList());
+        if (mViewPager.getCurrentItem() == 0) {
+            mFragmentMusic = (FragmentMusic) mMyPagerAdapter.getItem(0);
+            mFragmentMusic.onPlay(position);
         }
     }
 
@@ -84,18 +117,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initalView() {
-        toolbar = (Toolbar) findViewById(R.id.toolBar);
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.addTab(tabLayout.newTab());
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        mypagerAdapter = new MyPagerAdapter(getSupportFragmentManager());//这里开始初始化Fragment
-        viewPager.setAdapter(mypagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+        mToolbar = (Toolbar) findViewById(R.id.toolBar);
+        mTabLayout = (TabLayout) findViewById(tabLayout);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.addTab(mTabLayout.newTab());
+        mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        mMyPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());//这里开始初始化Fragment
+        mViewPager.setAdapter(mMyPagerAdapter);
+        mTabLayout.setupWithViewPager(mViewPager);
 //        toolbar.setNavigationIcon(R.drawable.actionbar_back);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 //        final TabLayout.TabLayoutOnPageChangeListener listener = new TabLayout.TabLayoutOnPageChangeListener(tabLayout);

@@ -28,8 +28,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     private MediaPlayer mediaPlayer;
     private int playingPosition=0; // 当前正在播放
     private MusicUtils mMusicUtils;
-
-
+    private boolean isInterrupted=true;
 
     public final IBinder binder = new MyBinder();
     private List<MusicInfo> musicInfoList=null;
@@ -53,8 +52,13 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
 
 
     public void StartThread() {
-        myThread = new MyThread();
-        myThread.start();
+        if(myThread == null) {
+            myThread = new MyThread();
+        }
+        if (isInterrupted){
+            myThread.start();
+            isInterrupted = false;
+        }
     }
     // 单线程池
 //    private ExecutorService progressUpdatedListener = Executors.newSingleThreadExecutor();//单线程池
@@ -88,7 +92,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
      */
     @Override
     public void onCreate() {
-        Log.i(TAG, "onCreate: --->servicestarted,scanfile");
+        Log.i(TAG, "onCreate: --->servicestarted,scanMusic");
         super.onCreate();
 //        mMusicUtils = new MusicUtils(getApplicationContext());
 //        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
@@ -141,6 +145,8 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
 			     */
                 SystemClock.sleep(200);
                 if (this.interrupted()) {
+                    Log.i(TAG, "run: --->interrupted");
+                    isInterrupted = true;
                     return;
                 }
             }
@@ -174,6 +180,7 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i(TAG, "onUnbind: --->");
+        sServiceStarted = false;
         return true;
     }
 
@@ -183,7 +190,6 @@ public class PlayingService extends Service implements MediaPlayer.OnCompletionL
         if (mediaPlayer != null)
             mediaPlayer.release();
         mediaPlayer = null;
-        sServiceStarted = false;
         super.onDestroy();
 
     }

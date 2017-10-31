@@ -2,11 +2,8 @@ package com.example.geyiyang.eric_x_music.App;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
-
-import com.example.geyiyang.eric_x_music.Service.PlayingService;
 
 /**
  * Created by geyiyang on 2017/9/28.
@@ -20,7 +17,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        startService(new Intent(this, PlayingService.class));
+//        startService(new Intent(this, PlayingService.class));
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics dm = new DisplayMetrics();

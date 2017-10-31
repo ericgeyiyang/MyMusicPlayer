@@ -8,10 +8,11 @@
         android:id="@+id/action_search"
         android:icon="@drawable/actionbar_search"
         android:title="@string/search_local"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="collapseActionView|ifRoom"
+        app:actionViewClass="android.support.v7.widget.SearchView"/>
     <item
         android:id="@+id/action_playing"
-        android:icon="@drawable/actionbar_menu_icn_upquality"
+        android:icon="@drawable/actionbar_music_selected"
         android:title="@string/playing"
         app:showAsAction="ifRoom"
         />
