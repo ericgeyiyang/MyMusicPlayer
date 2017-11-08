@@ -9,13 +9,13 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by geyiyang on 2017/10/26.
@@ -26,7 +26,7 @@ public class CDview extends View {
     private static final int MSG_RUN = 0x00000100;
     private static final int MSG_ROTATE = 0x00000010;
     private static final int MSG_DECELERATE = 0x00000001;
-    private static final int TIME_UPDATE = 50;
+    private static final int TIME_UPDATE = 20;
     private static final float ANGLEVELOSITY=0.0144f;
     private float mDegree = 0.0f;
     private float mIncreasedDegree = 0.0f;
@@ -34,12 +34,13 @@ public class CDview extends View {
     private Timer timer;
     private float mAngleVelosity;
     private Matrix mMatrix;
-
+    private boolean isInterrupted=true;
+    private MyTread mMyTread;
     private volatile boolean isRunning;
     private volatile boolean isPlaying=false;
 
     private Bitmap mCoverBitmap;
-
+    private long mCount1,mCount2;
     public CDview(Context context) {
         super(context);
         if (mMatrix == null) {
@@ -156,25 +157,54 @@ public class CDview extends View {
 
         return target;
     }
-    private TimerTask task;
-    private void initialtimer() {
-        task=new TimerTask() {
-            @Override
-            public void run() {
-                mHandler.sendEmptyMessage(MSG_DECELERATE);
-            }
-        };
-        timer = new Timer();
-    }
 
+//    private TimerTask task;
+//    private void initialtimer() {
+//        task=new TimerTask() {
+//            @Override
+//            public void run() {
+//                mHandler.sendEmptyMessage(MSG_DECELERATE);
+//                mCount1++;
+//                Log.i(TAG, "run: --->"+mCount1);
+//            }
+//        };
+//        timer = new Timer();
+//    }
+
+    public class MyTread extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+                mHandler.sendEmptyMessage(MSG_DECELERATE);
+                mCount1++;
+//                Log.i(TAG, "run: --->"+mCount1);
+                SystemClock.sleep(TIME_UPDATE);
+                if (this.interrupted()) {
+                    Log.i(TAG, "run: --->interrupted");
+                    isInterrupted = true;
+                    return;
+                }
+            }
+        }
+    }
     /**
      * @param v 最后5点ontouch的平均角加速度
      */
 
+
     public void decelerate(float v,boolean isPlaying) {
-        initialtimer();
+//        initialtimer();
         mAngleVelosity=v;
-        timer.schedule(task,0,TIME_UPDATE);
+        if (mMyTread == null) {
+            mMyTread = new MyTread();
+        }
+        if (isInterrupted) {
+            mMyTread.setPriority(Thread.MAX_PRIORITY);
+            mMyTread.start();
+            isInterrupted = false;
+        }
+//        timer.schedule(task,0,TIME_UPDATE);
+        mCount1=mCount2=0;
         this.isPlaying=isPlaying;
    }
 
@@ -209,27 +239,34 @@ public class CDview extends View {
             if (msg.what == MSG_ROTATE) {
                 mDegree = (mDegree + mIncreasedDegree) % 360.0f;
                 invalidate();
-                mDecelerationRate=0.1f;
+                mDecelerationRate=0.06f;
             }
             if (msg.what == MSG_DECELERATE) {
-                Log.i(TAG, "handleMessage: --->"+mIncreasedDegree+","+mAngleVelosity+","+isPlaying+","+isRunning);
+                Log.i(TAG, "handleMessage: --->"+mIncreasedDegree+","+mAngleVelosity+","+mDecelerationRate);
+                mCount2++;
+//                Log.i(TAG, "handleMessage: --->"+mCount2);
                 if (mAngleVelosity >= 0) {
                     mIncreasedDegree = mAngleVelosity * TIME_UPDATE;
                     mAngleVelosity-=mDecelerationRate;
-                    if (mAngleVelosity < 0.8f) {
+                    if (mAngleVelosity < 0.6f) {
                         if(mDecelerationRate<=0.003f)
-                            mDecelerationRate=0.003f;
+                            mDecelerationRate = 0.003f;
                         else
                             mDecelerationRate /= 1.14;
+                        if(mAngleVelosity<=0.04f)
+                            mDecelerationRate = 0.001f;
+
                     }
                     if (!isPlaying&&mAngleVelosity < 0.001f) {
                         pause();
-                        timer.cancel();
+//                        timer.cancel();
+                        mMyTread.interrupt();
                         mAngleVelosity=0;
                         mDecelerationRate=0.1f;
                     }
                     if (isPlaying&&mAngleVelosity < ANGLEVELOSITY) {
-                        timer.cancel();
+//                        timer.cancel();
+                        mMyTread.interrupt();
                         mAngleVelosity = ANGLEVELOSITY;
                         mDecelerationRate=0.1f;
                             start();
@@ -245,12 +282,14 @@ public class CDview extends View {
                     }
                     if (!isPlaying&&mAngleVelosity > -0.001f) {
                         pause();
-                        timer.cancel();
+//                        timer.cancel();
+                        mMyTread.interrupt();
                         mAngleVelosity=0;
                         mDecelerationRate=0.1f;
                     }
                     if (isPlaying&&mAngleVelosity > ANGLEVELOSITY) {
-                        timer.cancel();
+//                        timer.cancel();
+                        mMyTread.interrupt();
                         mAngleVelosity = ANGLEVELOSITY;
                         mDecelerationRate=0.1f;
                         start();
